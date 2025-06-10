@@ -22,7 +22,6 @@
 """
 
 
-
 def stable_matching(students, schools, student_preferences, school_preferences, capacities):
     """
     Finds a stable matching between students and schools using our Stable Matching algorithm.
@@ -60,7 +59,7 @@ def make_proposal(student, matches, unassigned, proposals, student_preferences, 
 
     if proposals[student] >= len(student_preferences[student]):
         unassigned.remove(student)  # the student has proposed to all schools
-        return
+        return 
         
     school = student_preferences[student][proposals[student]]  # get the next school in his preferences
     proposals[student] += 1  #  increment the proposal count for the student
@@ -109,6 +108,36 @@ def accept(student, school, matches, unassigned):
     matches[school].append(student)  # match
     if student in unassigned:
         unassigned.remove(student)  # remove the student 
+
+def main():
+
+    students = ["corentin", "flavien", 'yoann', 'pierre']
+    schools = ["ecole1", "ecole2", "ecole3"]
+
+    student_preferences = {
+        "corentin": ["ecole1", "ecole2", "ecole3"],
+        "flavien": ["ecole2", "ecole1", "ecole3"],
+        "yoann": ["ecole3", "ecole1", "ecole2"],
+        "pierre": ["ecole1", "ecole3", "ecole2"]
+    }
+
+    school_preferences = {
+        "ecole1": ["corentin", "pierre", "flavien", "yoann"],
+        "ecole2": ["flavien", "corentin", "yoann", "pierre"],
+        "ecole3": ["yoann", "pierre", "corentin", "flavien"]
+    }
+    capacities = {
+        "ecole1": 1,
+        "ecole2": 1,
+        "ecole3": 1
+    }
+
+    results = stable_matching(students, schools, student_preferences, school_preferences, capacities)
+    print("Résultats de l'algo stable :")
+    for student, school in results.items():
+        print(f"{student} est affecté à {school}")
+
+main()
 
 
 
