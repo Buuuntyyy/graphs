@@ -1,24 +1,25 @@
 import pandas as pd 
 import json
 
+# Load the JSON files
 with open("schools.json", 'r', encoding='utf-8') as f:
     data_schools = json.load(f)
 
     df_schools = pd.json_normalize(data_schools["schools"])
-
-print(df_schools)
 
 with open('students.json', 'r', encoding='utf-8') as f:
     data_students = json.load(f)
 
     df_students = pd.json_normalize(data_students["students"])
 
-print(df_students)
-
-
-unassigned = df_students['name'].tolist()
+# Extracting the names of students and schools
+students = df_students['name'].tolist()
 schools = df_schools['name'].tolist()
 
+# Extracting preferences and capacities into dictionaries
+student_preferences = df_students.set_index('name')['preferences'].to_dict()
+school_preferences = df_schools.set_index('name')['preferences'].to_dict()
+capacities = df_schools.set_index('name')['capacity'].to_dict()
 
 
 def stable_matching(students, schools, student_preferences, school_preferences, capacities):
@@ -74,14 +75,7 @@ def ranking_student(school, current_students, school_preferences):
     """
     Finds the worst ranked student currently matched with the school.
     """
-    worst = None
-    worst_rank = -1
-    for student in current_students:
-        rank = school_preferences[school].index(student)
-        if rank > worst_rank:
-            worst_rank = rank
-            worst = student
-    return worst
+    return max(current_students, key=lambda s: school_preferences.index(s))
 
 
 def evaluate_candidate(student, school, worst_student, matches, unassigned, school_preferences):
@@ -109,12 +103,15 @@ def accept(student, school, matches, unassigned):
         unassigned.remove(student)  # remove the student 
 
 
+def main():
+    results = stable_matching(students, schools, student_preferences, school_preferences, capacities)
+    #print(results)
+    # Convert the results to a DataFrame for better visualization
+    df_results = pd.DataFrame(list(results.items()), columns=['Student', 'School'])
+    print(df_results)
 
 
-
-
-
-
+main()
 
 
 
