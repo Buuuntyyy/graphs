@@ -132,10 +132,17 @@ def main():
         "ecole3": 1
     }
 
+    print("========FIRST TEST=========")
     results = stable_matching(students, schools, student_preferences, school_preferences, capacities)
     print("Résultats de l'algo stable :")
     for student, school in results.items():
         print(f"{student} est affecté à {school}")
+    print("---------END OF TEST 1---------")
+
+    print("=========2ND TEST==========")
+
+    print("---------END OF TEST 2---------")
+
 
 main()
 
