@@ -1,0 +1,127 @@
+import pandas as pd 
+import json
+
+# Load the JSON files
+with open("schools.json", 'r', encoding='utf-8') as f:
+    data_schools = json.load(f)
+
+    df_schools = pd.json_normalize(data_schools["schools"])
+
+with open('students.json', 'r', encoding='utf-8') as f:
+    data_students = json.load(f)
+
+    df_students = pd.json_normalize(data_students["students"])
+
+# Extracting the names of students and schools
+students = df_students['name'].tolist()
+schools = df_schools['name'].tolist()
+
+# Extracting preferences and capacities into dictionaries
+student_preferences = df_students.set_index('name')['preferences'].to_dict()
+school_preferences = df_schools.set_index('name')['preferences'].to_dict()
+capacities = df_schools.set_index('name')['capacity'].to_dict()
+
+
+def stable_matching(students, schools, student_preferences, school_preferences, capacities):
+    """
+    Finds a stable matching between students and schools using our Stable Matching algorithm.
+    
+    Parameters:
+        - students: list of student 
+        - schools: list of school
+        - student_preferences: a dictionary student <-> list of school
+        - school_preferences: a dictionary school <-> list of student
+        - capacities: a dictionary school <-> number of places available
+    
+    Return a dictonary student <-> matched school
+    """
+ 
+    unassigned = list(students)
+    matches = {school: [] for school in schools}    
+    proposals = {student : 0 for student in students}
+      
+
+    while unassigned:  
+        student = unassigned[0]
+        make_proposal(student, matches, unassigned, proposals, student_preferences, school_preferences, capacities)
+    
+    results = {}
+    for school, matched_students in matches.items():
+        for student in matched_students:
+            results[student] = school
+    return results
+
+
+def make_proposal(student, matches, unassigned, proposals, student_preferences, school_preferences, capacities):
+    """
+    The function is responsible for managing the logic of a student proposing to a school.
+    """
+
+    if proposals[student] >= len(student_preferences[student]):
+        unassigned.remove(student)  # the student has proposed to all schools
+        return
+        
+    school = student_preferences[student][proposals[student]]  # get the next school in his preferences
+    proposals[student] += 1  #  increment the proposal count for the student
+
+    if len(matches[school]) < capacities[school]:  # left places in the school
+        accept(student, school, matches, unassigned)
+    else:
+        worst_student = ranking_student(school, matches[school], school_preferences)
+        evaluate_candidate(student, school, worst_student, matches, unassigned, school_preferences)
+
+
+def ranking_student(school, current_students, school_preferences):
+    """
+    Finds the worst ranked student currently matched with the school.
+    """
+    return max(current_students, key=lambda s: school_preferences.index(s))
+
+
+def evaluate_candidate(student, school, worst_student, matches, unassigned, school_preferences):
+    """
+    Handles decision-making when a a school is already matched with a student. 
+    """
+    new_student_rank = school_preferences[school].index(student)  
+    worst_rank = school_preferences[school].index(worst_student)  
+
+    if new_student_rank < worst_rank:  
+        matches[school].remove(worst_student)  
+        unassigned.append(worst_student)
+        accept(student, school, matches, unassigned)
+    else:
+        if student not in unassigned:
+            unassigned.append(student)
+
+
+def accept(student, school, matches, unassigned):
+    """
+    Accepts a proposal from a student to a school
+    """
+    matches[school].append(student)  # match
+    if student in unassigned:
+        unassigned.remove(student)  # remove the student 
+
+
+def main():
+    results = stable_matching(students, schools, student_preferences, school_preferences, capacities)
+    #print(results)
+    # Convert the results to a DataFrame for better visualization
+    df_results = pd.DataFrame(list(results.items()), columns=['Student', 'School'])
+    print(df_results)
+
+
+main()
+
+
+
+
+
+
+
+
+
+
+
+
+
