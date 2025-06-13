@@ -49,13 +49,14 @@ def student_attempt(student,
                     student_preferences, 
                     school_preferences, 
                     capacities):
+    """Logic of a student proposing to a school"""
 
     if attempts[student] >= len(student_preferences[student]):
         still_looking.remove(student)  
         print(f"{student}, nobody wants it")
         return
         
-    school = student_preferences[student][attempts[student]]  # nxt
+    school = student_preferences[student][attempts[student]]  # next school
     attempts[student] += 1  
 
 
@@ -72,7 +73,8 @@ def student_attempt(student,
 def least_preferred(school, 
                     current_students, 
                     school_preferences):
-    
+    """Return worst student matched with the school"""
+
     return max(current_students, key=lambda s: school_preferences[school].index(s)) # higher index = less preferred
 
 
@@ -83,6 +85,7 @@ def evaluate(student,
             schools_assignements, 
             still_looking, 
             school_preferences):
+    """Just comparation, and accept/reject the student"""
     
     new_student_rank = school_preferences[school].index(student)  
     worst_rank = school_preferences[school].index(worst_student)  
@@ -99,6 +102,7 @@ def accept(student,
            school, 
            schools_assignements, 
            unassigned_students):
+    """Accept a student and do the necessary"""
     
     schools_assignements[school].append(student)  
     if student in unassigned_students:
