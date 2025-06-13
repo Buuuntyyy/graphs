@@ -20,11 +20,9 @@ def json_generator():
 
     # Generate schools with random capacity and student preferences
     schools = []
-    total_capacity = 0
     for name in school_names:
         capacity = random.randint(1, available_capacity)  # ou une valeur fixe si tu préfères
         preferences = random.sample(student_names, len(student_names))
-        total_capacity = capacity + total_capacity
         schools.append({
             "name": name,
             "capacity": capacity,
@@ -55,5 +53,3 @@ def json_generator():
 
     with open("students.json", "w") as f:
         json.dump(data2, f, indent=4)
-
-    print("Total capacity is : " + str(total_capacity))
