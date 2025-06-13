@@ -98,6 +98,3 @@ def assign(
     schools_assignements[school].append(student)
     student_matches[student] = school
     
-
-
-
